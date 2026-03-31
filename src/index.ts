@@ -123,8 +123,8 @@ function createServer() {
     "gong_interaction_stats",
     "Get interaction statistics (talk ratio, patience, questions asked, longest monologue, etc.) for calls in a date range.",
     {
-      fromDateTime: z.string().describe("Start date/time in ISO 8601"),
-      toDateTime: z.string().describe("End date/time in ISO 8601"),
+      fromDate: z.string().describe("Start date in YYYY-MM-DD format"),
+      toDate: z.string().describe("End date in YYYY-MM-DD format"),
       userIds: z.array(z.string()).optional().describe("Filter by specific user IDs"),
     },
     async (params) => {
@@ -141,8 +141,8 @@ function createServer() {
     "gong_scorecard_stats",
     "Get scorecard-based activity statistics for users in a date range.",
     {
-      fromDateTime: z.string().describe("Start date/time in ISO 8601"),
-      toDateTime: z.string().describe("End date/time in ISO 8601"),
+      fromDate: z.string().describe("Start date in YYYY-MM-DD format"),
+      toDate: z.string().describe("End date in YYYY-MM-DD format"),
       userIds: z.array(z.string()).optional().describe("Filter by specific user IDs"),
     },
     async (params) => {
@@ -159,8 +159,8 @@ function createServer() {
     "gong_aggregate_activity",
     "Get aggregate activity metrics (total calls, emails, meetings) for users in a date range.",
     {
-      fromDateTime: z.string().describe("Start date/time in ISO 8601"),
-      toDateTime: z.string().describe("End date/time in ISO 8601"),
+      fromDate: z.string().describe("Start date in YYYY-MM-DD format"),
+      toDate: z.string().describe("End date in YYYY-MM-DD format"),
       userIds: z.array(z.string()).optional().describe("Filter by specific user IDs"),
     },
     async (params) => {
@@ -177,8 +177,8 @@ function createServer() {
     "gong_daily_activity",
     "Get day-by-day activity breakdown for users in a date range.",
     {
-      fromDateTime: z.string().describe("Start date/time in ISO 8601"),
-      toDateTime: z.string().describe("End date/time in ISO 8601"),
+      fromDate: z.string().describe("Start date in YYYY-MM-DD format"),
+      toDate: z.string().describe("End date in YYYY-MM-DD format"),
       userIds: z.array(z.string()).optional().describe("Filter by specific user IDs"),
     },
     async (params) => {

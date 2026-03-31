@@ -71,12 +71,13 @@ export interface ListCallsParams {
 }
 
 export async function listCalls(params: ListCallsParams = {}): Promise<any> {
-  const body: any = {};
-  if (params.fromDateTime) body.filter = { ...body.filter, fromDateTime: params.fromDateTime };
-  if (params.toDateTime) body.filter = { ...body.filter, toDateTime: params.toDateTime };
-  if (params.workspaceId) body.filter = { ...body.filter, workspaceId: params.workspaceId };
-  if (params.cursor) body.cursor = params.cursor;
-  return gongPost("/v2/calls", body);
+  const queryParts: string[] = [];
+  if (params.fromDateTime) queryParts.push(`fromDateTime=${encodeURIComponent(params.fromDateTime)}`);
+  if (params.toDateTime) queryParts.push(`toDateTime=${encodeURIComponent(params.toDateTime)}`);
+  if (params.workspaceId) queryParts.push(`workspaceId=${encodeURIComponent(params.workspaceId)}`);
+  if (params.cursor) queryParts.push(`cursor=${encodeURIComponent(params.cursor)}`);
+  const qs = queryParts.length ? `?${queryParts.join("&")}` : "";
+  return gongGet(`/v2/calls${qs}`);
 }
 
 export async function getCallDetails(callIds: string[]): Promise<any> {
@@ -120,16 +121,16 @@ export async function getUsersByIds(userIds: string[]): Promise<any> {
 // ═══════════════════════════════════════
 
 export interface StatsParams {
-  fromDateTime: string;
-  toDateTime: string;
+  fromDate: string;  // YYYY-MM-DD
+  toDate: string;    // YYYY-MM-DD
   userIds?: string[];
 }
 
 export async function getInteractionStats(params: StatsParams): Promise<any> {
   const body: any = {
     filter: {
-      fromDateTime: params.fromDateTime,
-      toDateTime: params.toDateTime,
+      fromDate: params.fromDate,
+      toDate: params.toDate,
     },
   };
   if (params.userIds?.length) body.filter.userIds = params.userIds;
@@ -139,8 +140,8 @@ export async function getInteractionStats(params: StatsParams): Promise<any> {
 export async function getActivityScorecardsStats(params: StatsParams): Promise<any> {
   const body: any = {
     filter: {
-      fromDateTime: params.fromDateTime,
-      toDateTime: params.toDateTime,
+      fromDate: params.fromDate,
+      toDate: params.toDate,
     },
   };
   if (params.userIds?.length) body.filter.userIds = params.userIds;
@@ -150,8 +151,8 @@ export async function getActivityScorecardsStats(params: StatsParams): Promise<a
 export async function getAggregateActivity(params: StatsParams): Promise<any> {
   const body: any = {
     filter: {
-      fromDateTime: params.fromDateTime,
-      toDateTime: params.toDateTime,
+      fromDate: params.fromDate,
+      toDate: params.toDate,
     },
   };
   if (params.userIds?.length) body.filter.userIds = params.userIds;
@@ -161,8 +162,8 @@ export async function getAggregateActivity(params: StatsParams): Promise<any> {
 export async function getDayByDayActivity(params: StatsParams): Promise<any> {
   const body: any = {
     filter: {
-      fromDateTime: params.fromDateTime,
-      toDateTime: params.toDateTime,
+      fromDate: params.fromDate,
+      toDate: params.toDate,
     },
   };
   if (params.userIds?.length) body.filter.userIds = params.userIds;
@@ -178,14 +179,12 @@ export async function listCrmIntegrations(): Promise<any> {
 }
 
 export async function getDeals(params: { fromDateTime?: string; toDateTime?: string; cursor?: string } = {}): Promise<any> {
-  const body: any = {};
-  if (params.fromDateTime || params.toDateTime) {
-    body.filter = {};
-    if (params.fromDateTime) body.filter.fromDateTime = params.fromDateTime;
-    if (params.toDateTime) body.filter.toDateTime = params.toDateTime;
-  }
-  if (params.cursor) body.cursor = params.cursor;
-  return gongPost("/v2/deals", body);
+  const queryParts: string[] = [];
+  if (params.fromDateTime) queryParts.push(`fromDateTime=${encodeURIComponent(params.fromDateTime)}`);
+  if (params.toDateTime) queryParts.push(`toDateTime=${encodeURIComponent(params.toDateTime)}`);
+  if (params.cursor) queryParts.push(`cursor=${encodeURIComponent(params.cursor)}`);
+  const qs = queryParts.length ? `?${queryParts.join("&")}` : "";
+  return gongGet(`/v2/crm/object/list${qs}`);
 }
 
 // ═══════════════════════════════════════
