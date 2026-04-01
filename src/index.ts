@@ -9,6 +9,7 @@ import {
   listCalls,
   getCallDetails,
   getCallTranscript,
+  searchCalls,
   listUsers,
   getUsersByIds,
   getInteractionStats,
@@ -78,6 +79,25 @@ function createServer() {
       try {
         const result = await getCallTranscript(callId);
         return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      } catch (err: any) {
+        return { content: [{ type: "text", text: `Error: ${err.message}` }], isError: true };
+      }
+    }
+  );
+
+  server.tool(
+    "gong_search_calls",
+    "Search Gong calls by participant name, company, email, or call title. Fetches calls in the date range and filters by your query. Requires a date range to scope the search.",
+    {
+      query: z.string().describe("Search term to match against call title, participant names, emails, or companies"),
+      fromDateTime: z.string().describe("Start date/time in ISO 8601 (e.g. 2024-01-01T00:00:00Z)"),
+      toDateTime: z.string().describe("End date/time in ISO 8601"),
+      workspaceId: z.string().optional().describe("Filter by workspace ID"),
+    },
+    async (params) => {
+      try {
+        const results = await searchCalls(params);
+        return { content: [{ type: "text", text: JSON.stringify({ totalMatches: results.length, calls: results }, null, 2) }] };
       } catch (err: any) {
         return { content: [{ type: "text", text: `Error: ${err.message}` }], isError: true };
       }

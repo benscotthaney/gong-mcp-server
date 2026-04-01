@@ -101,6 +101,43 @@ export async function getCallTranscript(callId: string): Promise<any> {
   });
 }
 
+export interface SearchCallsParams {
+  query: string;
+  fromDateTime: string;
+  toDateTime: string;
+  workspaceId?: string;
+}
+
+export async function searchCalls(params: SearchCallsParams): Promise<any[]> {
+  const filter: any = {
+    fromDateTime: params.fromDateTime,
+    toDateTime: params.toDateTime,
+  };
+  if (params.workspaceId) filter.workspaceId = params.workspaceId;
+
+  const allCalls = await gongPostPaginated("/v2/calls/extensive", {
+    filter,
+    contentSelector: {
+      exposedFields: {
+        parties: true,
+      },
+    },
+  }, "calls");
+
+  const q = params.query.toLowerCase();
+  return allCalls.filter((call: any) => {
+    if (call.metaData?.title?.toLowerCase().includes(q)) return true;
+    if (Array.isArray(call.parties)) {
+      return call.parties.some((p: any) =>
+        p.name?.toLowerCase().includes(q) ||
+        p.emailAddress?.toLowerCase().includes(q) ||
+        p.affiliation?.toLowerCase().includes(q)
+      );
+    }
+    return false;
+  });
+}
+
 // ═══════════════════════════════════════
 // USERS
 // ═══════════════════════════════════════
