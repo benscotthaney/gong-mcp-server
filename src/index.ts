@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import express, { Request, Response } from "express";
 import { z } from "zod";
@@ -304,7 +305,7 @@ const sseTransports: Record<string, SSEServerTransport> = {};
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Mcp-Session-Id, mcp-session-id");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Mcp-Session-Id, mcp-session-id, Mcp-Protocol-Version, mcp-protocol-version");
   res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
   if (req.method === "OPTIONS") {
     res.status(204).end();
@@ -326,6 +327,20 @@ app.post("/mcp", express.json(), async (req: Request, res: Response) => {
 
     if (sessionId && transports[sessionId]) {
       await transports[sessionId].handleRequest(req, res, req.body);
+      return;
+    }
+
+    // Only create new transports for initialize requests (per MCP spec)
+    const isInit = Array.isArray(req.body)
+      ? req.body.some(isInitializeRequest)
+      : isInitializeRequest(req.body);
+
+    if (!isInit) {
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: { code: -32000, message: "Bad Request: No valid session ID provided" },
+        id: null,
+      });
       return;
     }
 
